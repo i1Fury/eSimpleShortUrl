@@ -76,14 +76,12 @@ def new_url():
     if id := shortener.get_id(url):
         return f'http://{HOST}/{id}' if 'api' in request.args and request.args['api'] == 'true' else f'That url has already been shortened to http://{HOST}/{id}'
     id = shortener.new(url)
-    print()
     return f'http://{HOST}/{id}' if 'api' in request.args and request.args['api'] == 'true' else f'The shortened url is http://{HOST}/{id}'
 
 
 @app.route('/<id>')
 def redirect_route(id):
     url = shortener.get_url(id)
-    print(url)
     if url:
         return redirect(url)
     else:
@@ -123,4 +121,6 @@ def get_screenshot(image):
         return 'Image not found!'
 
 
-app.run(port='80')
+if __name__ == '__main__':
+    from waitress import serve
+    serve(app, host=HOST, port=80)
