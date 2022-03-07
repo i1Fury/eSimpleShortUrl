@@ -1,0 +1,43 @@
+.textarea {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    -webkit-box-shadow: inset 0 1px 1px rgb(0 0 0 / 8%);
+    box-shadow: inset 0 1px 1px rgb(0 0 0 / 8%);
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    display: block;
+    font-family: Consolas,Menlo,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,monospace,serif;
+    font-size: 13px;
+    min-height: 200px;
+    line-height: 21px;
+    margin: 0;
+    padding: 8px 12px;
+    overflow-wrap: break-word;
+    tab-size: 4;
+    -moz-tab-size: 4;
+    -o-tab-size: 4;
+    -webkit-tab-size: 4;
+    height: 100%;
+    width: 100%;
+}
+
+textarea {
+    outline: none;
+    border: none;
+    font-size: 100%;
+    margin: 0;
+    resize: none;
+    overflow: auto;
+    vertical-align: top;
+    box-shadow: none;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    height: 100%;
+    width: 100%;
+}
+
+
