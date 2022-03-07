@@ -8,7 +8,7 @@ from win10toast import ToastNotifier
 
 toast = ToastNotifier()
 
-HOST = 'http://127.0.0.1.nip.io'
+HOST = 'http://167.172.230.104'
 
 
 def check_clip():
@@ -38,4 +38,4 @@ def check_clip():
 
 if __name__ == '__main__':
     keyboard.add_hotkey('menu', check_clip, suppress=True)
-    input()
+    keyboard.wait()
