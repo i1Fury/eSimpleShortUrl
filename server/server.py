@@ -6,7 +6,10 @@ import os
 import base64
 from passcode import passcode
 
-HOST = '127.0.0.1.nip.io'
+
+DEBUG = True
+HOST = '167.172.230.104'
+URL = 'elliotcs.dev'
 
 
 dirs = (
@@ -74,9 +77,9 @@ def cleaner():
 def new_url():
     url = request.form['url']
     if id := shortener.get_id(url):
-        return f'http://{HOST}/{id}' if 'api' in request.args and request.args['api'] == 'true' else f'That url has already been shortened to http://{HOST}/{id}'
+        return f'http://{URL}/{id}' if 'api' in request.args and request.args['api'] == 'true' else f'That url has already been shortened to http://{HOST}/{id}'
     id = shortener.new(url)
-    return f'http://{HOST}/{id}' if 'api' in request.args and request.args['api'] == 'true' else f'The shortened url is http://{HOST}/{id}'
+    return f'http://{URL}/{id}' if 'api' in request.args and request.args['api'] == 'true' else f'The shortened url is http://{URL}/{id}'
 
 
 @app.route('/<id>')
@@ -92,14 +95,14 @@ def redirect_route(id):
 def upload():
     im = request.files['image']
     path = shortener.new_image(im)
-    return f'http://{path}.{HOST}/'
+    return f'http://{path}.{URL}/'
 
 
 @app.route('/bin', methods=['POST'])
 def bin():
     data = request.form['clip']
     path = shortener.new_bin(data)
-    return f'http://{path}.bin.{HOST}/'
+    return f'http://{path}.bin.{URL}/'
 
 
 @app.route('/', subdomain='<file>.bin')
@@ -122,5 +125,8 @@ def get_screenshot(image):
 
 
 if __name__ == '__main__':
-    from waitress import serve
-    serve(app, host=HOST, port=80)
+    if DEBUG:
+        app.run(port=80, debug=True)
+    else:
+        from waitress import serve
+        serve(app, host=HOST, port=80)
