@@ -123,4 +123,4 @@ def get_screenshot(image):
         return 'Image not found!'
 
 
-app.run(port='80', debug=True)
+app.run(port='80')
