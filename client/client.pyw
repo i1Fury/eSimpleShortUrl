@@ -8,7 +8,8 @@ from win10toast import ToastNotifier
 
 toast = ToastNotifier()
 
-HOST = 'http://167.172.230.104'
+HOST = 'https://elliotcs.dev'
+HOTKEY = 'menu'
 
 
 def check_clip():
@@ -37,5 +38,5 @@ def check_clip():
 
 
 if __name__ == '__main__':
-    keyboard.add_hotkey('menu', check_clip, suppress=True)
+    keyboard.add_hotkey(HOTKEY, check_clip, suppress=True)
     keyboard.wait()
