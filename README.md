@@ -2,6 +2,8 @@
 
 Dis ting is just a server and client that has a url shortener, image server, and text bin. The client is for windows and is rather epic.
 
+You can test some of the features over at https://elliotcs.dev/
+
 Use this to set up ssl and proxies:
  - https://nginxproxymanager.com/guide/
 
