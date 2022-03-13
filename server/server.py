@@ -1,15 +1,14 @@
-from flask import Flask, request, redirect, render_template, send_file, send_from_directory
+from flask import Flask, request, Response, redirect, url_for, render_template, send_file
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from handlers import handler
 import os
-import base64
-from passcode import passcode
+from passcode import g_passcode
 
 
-DEBUG = True
-HOST = '167.172.230.104'
-URL = 'elliotcs.dev'
+DEBUG = False
+HOST = 'elliotcs.dev'
+SCHEME = 'https'
 
 
 dirs = (
@@ -18,9 +17,14 @@ dirs = (
     'bin'
 )
 
+try:
+    os.mkdir('static')
+except FileExistsError:
+    pass
+
 for dir in dirs:
     try:
-        os.mkdir(dir)
+        os.mkdir('static/' + dir)
     except FileExistsError:
         pass
 
@@ -39,7 +43,7 @@ shortener = handler()
 
 @app.route('/')
 def index():
-    return render_template('shortener.html')
+    return redirect(url_for('url_index'))
 
 
 @app.route('/', subdomain='clean')
@@ -47,20 +51,13 @@ def cleaner_form():
     return render_template('clean.html')
 
 
-def get_passcode(bruh=passcode):
-    if not bruh.startswith('BALLS'):
-        return get_passcode(str(base64.b64decode(bruh), encoding='utf-8'))
-    else:
-        return str(base64.b64decode(bruh[5:]), encoding='utf-8')
-
-
-@app.route('/clean', subdomain='clean', methods=['POST'])
+@app.route('/', subdomain='clean', methods=['POST'])
 def cleaner():
     passcode = request.form['pass']
     directive = request.form['directive'].lower()
-    if passcode != get_passcode():
+    if passcode != g_passcode:
         return 'INVALID PASSCODE!'
-    if directive not in ('bin', 'scs', 'urls'):
+    if directive not in ('all', 'bin', 'scs', 'urls'):
         return 'INVALID DIRECTIVE!'
     if directive == 'bin':
         path = 'bin'
@@ -68,22 +65,34 @@ def cleaner():
         path = 'screenshots'
     elif directive == 'urls':
         path = 'urls'
+    elif directive == 'all':
+        for path in dirs:
+            path = 'static/' + path
+            for f in os.listdir(path):
+                os.remove(os.path.join(path, f))
+        return 'CLEANED ALL!'
     for f in os.listdir(path):
         os.remove(os.path.join(path, f))
-    return 'CLEANED'
+    return 'CLEANED ' + path
 
 
-@app.route('/newurl', methods=['POST'])
+@app.route('/', subdomain='u')
+def url_index():
+    return render_template('shortener.html')
+
+
+@app.route('/new', subdomain='u', methods=['GET', 'POST'])
 def new_url():
+    print('DOING NEW TING')
     url = request.form['url']
     if id := shortener.get_id(url):
-        return f'http://{URL}/{id}' if 'api' in request.args and request.args['api'] == 'true' else f'That url has already been shortened to http://{HOST}/{id}'
+        return f'{SCHEME}://{id}-u.{HOST}/' if 'api' in request.args and request.args['api'] == 'true' else f'That url has already been shortened to {SCHEME}://{id}-u.{HOST}/'
     id = shortener.new(url)
-    return f'http://{URL}/{id}' if 'api' in request.args and request.args['api'] == 'true' else f'The shortened url is http://{URL}/{id}'
+    return f'{SCHEME}://{id}-u.{HOST}/' if 'api' in request.args and request.args['api'] == 'true' else f'The shortened url is {SCHEME}://{id}-u.{HOST}/'
 
 
-@app.route('/<id>')
-def redirect_route(id):
+@app.route('/', subdomain='<id>-u')
+def get_url(id):
     url = shortener.get_url(id)
     if url:
         return redirect(url)
@@ -91,37 +100,37 @@ def redirect_route(id):
         return 'Url not found!'
 
 
-@app.route('/upload', methods=['POST'])
-def upload():
+@app.route('/new', subdomain='i', methods=['POST'])
+def new_screenshot():
     im = request.files['image']
     path = shortener.new_image(im)
-    return f'http://{path}.{URL}/'
+    return f'{SCHEME}://{path}-i.{HOST}/'
 
 
-@app.route('/bin', methods=['POST'])
-def bin():
-    data = request.form['clip']
-    path = shortener.new_bin(data)
-    return f'http://{path}.bin.{URL}/'
-
-
-@app.route('/', subdomain='<file>.bin')
-def get_bin(file):
-    path = 'bin/' + file
-    if os.path.exists(path):
-        with open(path, 'r') as f: 
-            return render_template('bin.html', text=f.read())
-    else:
-        return 'File not found!'
-
-
-@app.route('/', subdomain='<image>')
+@app.route('/', subdomain='<image>-i')
 def get_screenshot(image):
-    screenshot = 'screenshots/' + image + '.png'
+    screenshot = 'static/screenshots/' + image + '.png'
     if os.path.exists(screenshot):
         return send_file(screenshot)
     else:
         return 'Image not found!'
+
+
+@app.route('/new', subdomain='bin', methods=['POST'])
+def new_bin():
+    data = request.form['clip']
+    path = shortener.new_bin(data)
+    return f'{SCHEME}://{path}-bin.{HOST}/'
+
+
+@app.route('/', subdomain='<file>-bin')
+def get_bin(file):
+    path = 'static/' + dirs[2] + '/' + file
+    if os.path.exists(path):
+        with open(path) as f:
+            return Response(f.read(), mimetype='text/plain')
+    else:
+        return 'File not found!'
 
 
 if __name__ == '__main__':

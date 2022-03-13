@@ -10,8 +10,8 @@ class handler:
     def __init__(self):
         self.ids = {}
         self.urls = {}
-        for id in os.listdir('urls'):
-            with open('urls/' + id, 'r') as f:
+        for id in os.listdir('static/urls'):
+            with open('static/urls/' + id, 'r') as f:
                 url = f.read()
                 self.urls[id] = url
                 self.ids[url] = id
@@ -35,27 +35,27 @@ class handler:
 
 
     def new(self, url):
-        while (id := self.gen_unique_name('urls')) in self.ids:
+        while (id := self.gen_unique_name('static/urls')) in self.ids:
             pass
         if url.find("http://") != 0 and url.find("https://") != 0:
             url = 'http://' + url
         self.urls[id] = url
         self.ids[url] = id
-        with open('urls/' + id, 'w+') as f:
+        with open('static/urls/' + id, 'w+') as f:
             f.write(url)
             f.close()
         return id
     
 
     def new_image(self, image):
-        name = self.gen_unique_name('screenshots', '.png')
-        image.save('screenshots/' + name + '.png')
+        name = self.gen_unique_name('static/screenshots', '.png')
+        image.save('static/screenshots/' + name + '.png')
         return name
     
 
     def new_bin(self, data):
-        name = self.gen_unique_name('bin')
-        with open('bin/' + name, 'w+') as f:
+        name = self.gen_unique_name('static/bin')
+        with open('static/bin/' + name, 'w+') as f:
             f.write(data)
             f.close()
         return name
